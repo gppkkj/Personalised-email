@@ -6,8 +6,8 @@ from datetime import datetime
 def send_emails(data, template):
 
     # Get credentials (safe for deployment)
-    sender_email = os.environ.get("EMAIL") or "your_email@gmail.com"
-    password = os.environ.get("PASSWORD") or "your_app_password"
+    sender_email = os.environ.get("EMAIL") or "kongarageetha87@gmail.com"
+    password = os.environ.get("PASSWORD") or "xoayxelmyflhhvqt"
 
     # Connect to Gmail SMTP
     server = smtplib.SMTP("smtp.gmail.com", 587)
