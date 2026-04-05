@@ -1,42 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Personalized Email Sender</title>
+    <title>Email Sender</title>
 </head>
 <body>
 
-    <h2>Personalized Email Sender</h2>
+    <h2>📧 Personalized Email Sender</h2>
 
-    <form action="/send" method="POST">
+    <form action="/send" method="post" enctype="multipart/form-data">
 
-        <label>Names (comma separated):</label><br>
-        <input type="text" name="names" placeholder="John, Jane"><br><br>
+        <!-- Upload CSV -->
+        <label>Upload CSV File:</label><br>
+        <input type="file" name="file" required><br><br>
 
-        <label>Emails (comma separated):</label><br>
-        <input type="text" name="emails" placeholder="john@gmail.com, jane@gmail.com"><br><br>
-
-        <label>Company Names (comma separated):</label><br>
-        <input type="text" name="companies" placeholder="Google, Microsoft"><br><br>
-
-        <label>Roles (comma separated):</label><br>
-        <input type="text" name="roles" placeholder="HR, Manager"><br><br>
-
+        <!-- Email Template -->
         <label>Email Template:</label><br>
-        <textarea name="template" rows="12" cols="60">
-Hi {name},
+        <textarea name="template" rows="12" cols="60">{{ template }}</textarea><br><br>
 
-I hope you're doing well.
-
-I came across {company} and noticed your role as {role}. I was really impressed by the work being done and wanted to reach out.
-
-I’d love to explore potential opportunities to collaborate or connect.
-
-Looking forward to your response.
-
-Best regards,  
-Your Name
-        </textarea><br><br>
-
+        <!-- Submit -->
         <button type="submit">Send Emails</button>
 
     </form>

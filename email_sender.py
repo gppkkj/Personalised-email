@@ -13,8 +13,12 @@ def send_emails(data, template):
     )
 
     for user in data:
-        # Personalize message
-        message = template.replace("{name}", user["name"])
+        # Start with original template
+        message = template
+
+        # Replace all variables dynamically
+        for key, value in user.items():
+            message = message.replace(f"{{{key}}}", value)
 
         msg = f"Subject: Personalized Email\n\n{message}"
 
