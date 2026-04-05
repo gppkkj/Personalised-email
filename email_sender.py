@@ -1,11 +1,12 @@
 import smtplib
 import time
 from datetime import datetime
+import os 
 
 def send_emails(data, template):
+    sender_email = os.environ.get("EMAIL")
+    password = os.environ.get("PASSWORD")
 
-   sender_email = "your_email@gmail.com"
-   password = "your_app_password"  # ⚠ Use App Password (no spaces)
 
     # Connect to Gmail SMTP
     server = smtplib.SMTP("smtp.gmail.com", 587)
