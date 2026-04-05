@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 import pandas as pd
 from email_sender import send_emails
+import os
 
 app = Flask(__name__)
 
@@ -47,4 +48,4 @@ def send():
 
 # Run app
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
