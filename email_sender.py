@@ -1,31 +1,53 @@
 import smtplib
+import time
 import os
+from datetime import datetime
 
 def send_emails(data, template):
-    # Connect to Brevo SMTP
-    server = smtplib.SMTP("smtp-relay.brevo.com", 587)
+
+    # Get credentials (safe for deployment)
+    sender_email = os.environ.get("EMAIL") or "your_email@gmail.com"
+    password = os.environ.get("PASSWORD") or "your_app_password"
+
+    # Connect to Gmail SMTP
+    server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls()
+    server.login(sender_email, password)
 
-    # Login using environment variables
-    server.login(
-        os.getenv("SMTP_USER"),
-        os.getenv("SMTP_PASS")
-    )
+    print("\n🚀 Sending emails...\n")
 
-    for user in data:
-        # Start with original template
-        message = template
+    for index, row in data.iterrows():
+        try:
+            email = str(row.get('email', '')).strip()
+            name = str(row.get('name', '')).strip()
+            company = str(row.get('company', '')).strip()
+            role = str(row.get('role', '')).strip()
 
-        # Replace all variables dynamically
-        for key, value in user.items():
-            message = message.replace(f"{{{key}}}", value)
+            if not email:
+                continue
 
-        msg = f"Subject: Personalized Email\n\n{message}"
+            # Personalize email
+            message = template.replace("{{name}}", name)\
+                              .replace("{{company}}", company)\
+                              .replace("{{role}}", role)
 
-        server.sendmail(
-            os.getenv("SMTP_USER"),
-            user["email"],
-            msg
-        )
+            full_message = f"Subject: Opportunity\n\n{message}"
+
+            server.sendmail(sender_email, email, full_message)
+
+            print(f"✅ Sent to {name} ({email})")
+
+            # Log success
+            with open("logs.txt", "a") as log:
+                log.write(f"{datetime.now()} SUCCESS: {email}\n")
+
+            time.sleep(5)  # Delay to avoid spam
+
+        except Exception as e:
+            print(f"❌ Failed for {email}: {e}")
+
+            with open("logs.txt", "a") as log:
+                log.write(f"{datetime.now()} FAILED: {email}\n")
 
     server.quit()
+    print("\n🎉 Done sending emails!")

@@ -5,23 +5,19 @@
 </head>
 <body>
 
-    <h2>Send Personalized Emails</h2>
+    <h2>📧 Personalized Email Sender</h2>
 
     <form action="/send" method="post" enctype="multipart/form-data">
-        
+
+        <!-- Upload CSV -->
         <label>Upload CSV File:</label><br>
         <input type="file" name="file" required><br><br>
 
-        <label>Write Email Template:</label><br>
-        <textarea name="template" rows="12" cols="60">
-            Hi {{name}},
-            I hope you are doing well.
-            I saw your work at {{company}} as a {{role}}.
-            ould love to connect with you.
-            Best regards,
-            Your Name
-        </textarea><br><br>
+        <!-- Email Template -->
+        <label>Email Template:</label><br>
+        <textarea name="template" rows="14" cols="70">{{ template }}</textarea><br><br>
 
+        <!-- Submit -->
         <button type="submit">Send Emails</button>
 
     </form>

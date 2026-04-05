@@ -1,59 +1,51 @@
 from flask import Flask, render_template, request
 import pandas as pd
 from email_sender import send_emails
+import os
 
 app = Flask(__name__)
 
-# Default template (always shown on UI)
+# Default template (your required one)
 DEFAULT_TEMPLATE = """Hi {{name}},
 
 I hope you are doing well.
 
-I saw your work at {{company}} as a {{role}}.
+I came across your profile as a {{role}} at {{company}} and found it very interesting.
 
-I would like to connect with you regarding an opportunity.
+I wanted to connect with you regarding an opportunity that might align with your experience.
+
+Looking forward to your response.
 
 Best regards,
 Your Name
 """
 
+# Home route
 @app.route('/')
 def home():
     return render_template('index.html', template=DEFAULT_TEMPLATE)
 
 
+# Send emails route
 @app.route('/send', methods=['POST'])
 def send():
-    try:
-        file = request.files.get('file')
-        template = request.form.get('template')
+    file = request.files['file']
+    template = request.form['template']
 
-        if not file:
-            return "❌ Please upload a CSV file"
+    # Read CSV
+    data = pd.read_csv(file, sep=",", engine="python")
 
-        if not template:
-            return "❌ Template is missing"
+    # Fix column issues
+    data.columns = data.columns.str.strip()
 
-        # Read CSV
-        data = pd.read_csv(file)
+    print("Columns:", data.columns)
 
-        # Clean column names
-        data.columns = data.columns.str.strip().str.lower()
+    # Call email sender
+    send_emails(data, template)
 
-        # Required columns check
-        required_cols = ['email', 'name', 'company', 'role']
-        for col in required_cols:
-            if col not in data.columns:
-                return f"❌ Missing column: {col}"
-
-        # Send emails
-        send_emails(data, template)
-
-        return "✅ Emails processed successfully!"
-
-    except Exception as e:
-        return f"❌ Error: {str(e)}"
+    return "✅ Emails processed successfully!"
 
 
+# Render deployment config
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=10000)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
