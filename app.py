@@ -1,51 +1,59 @@
-from flask import Flask, request, render_template
+from flask import Flask, render_template, request
+import pandas as pd
 from email_sender import send_emails
 
 app = Flask(__name__)
 
-@app.route("/")
+# Default template (always shown on UI)
+DEFAULT_TEMPLATE = """Hi {{name}},
+
+I hope you are doing well.
+
+I saw your work at {{company}} as a {{role}}.
+
+I would like to connect with you regarding an opportunity.
+
+Best regards,
+Your Name
+"""
+
+@app.route('/')
 def home():
-    return render_template("index.html")
+    return render_template('index.html', template=DEFAULT_TEMPLATE)
 
 
-@app.route("/send", methods=["POST"])
+@app.route('/send', methods=['POST'])
 def send():
     try:
-        # Get form data
-        names = request.form.get("names")
-        emails = request.form.get("emails")
-        companies = request.form.get("companies")
-        roles = request.form.get("roles")
-        template = request.form.get("template")
+        file = request.files.get('file')
+        template = request.form.get('template')
 
-        # Convert input into lists
-        names_list = names.split(",")
-        emails_list = emails.split(",")
-        companies_list = companies.split(",")
-        roles_list = roles.split(",")
+        if not file:
+            return "❌ Please upload a CSV file"
 
-        # Validation (important)
-        if not (len(names_list) == len(emails_list) == len(companies_list) == len(roles_list)):
-            return "❌ Error: All fields must have same number of values"
+        if not template:
+            return "❌ Template is missing"
 
-        # Prepare data
-        data = []
-        for i in range(len(names_list)):
-            data.append({
-                "name": names_list[i].strip(),
-                "email": emails_list[i].strip(),
-                "company": companies_list[i].strip(),
-                "role": roles_list[i].strip()
-            })
+        # Read CSV
+        data = pd.read_csv(file)
+
+        # Clean column names
+        data.columns = data.columns.str.strip().str.lower()
+
+        # Required columns check
+        required_cols = ['email', 'name', 'company', 'role']
+        for col in required_cols:
+            if col not in data.columns:
+                return f"❌ Missing column: {col}"
 
         # Send emails
         send_emails(data, template)
 
-        return "✅ Emails sent successfully!"
+        return "✅ Emails processed successfully!"
 
     except Exception as e:
         return f"❌ Error: {str(e)}"
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(host="0.0.0.0", port=10000)
